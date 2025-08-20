@@ -4,7 +4,7 @@
 # # Interactive Data Analysis Notebook
 # 
 # This notebook demonstrates relationships between variables using interactive widgets.
-# Comments document the data flow.
+# Comments document the data flow between cells.
 
 # %% [code]
 import numpy as np
@@ -21,10 +21,10 @@ y = 2 * x + 5 + np.random.normal(0, 2, size=x.shape)  # dependent variable
 
 # %% [code]
 # Interactive function
-def plot_line(slope=2.0, intercept=5.0):
+def plot_line(slope, intercept):
     """
     Plot y = slope * x + intercept
-    This dynamically updates based on slider widget state.
+    Dynamically updates based on slider widget state.
     """
     y_new = slope * x + intercept  # dependent variable recalculation
     plt.figure(figsize=(8,4))
@@ -36,10 +36,12 @@ def plot_line(slope=2.0, intercept=5.0):
     plt.legend()
     plt.show()
 
-# Slider widgets
-interact(plot_line,
-         slope=FloatSlider(min=0.0, max=5.0, step=0.1, value=2.0),
-         intercept=FloatSlider(min=-10.0, max=10.0, step=0.5, value=5.0));
+# Explicit slider widgets
+slope_slider = FloatSlider(min=0.0, max=5.0, step=0.1, value=2.0, description='Slope')
+intercept_slider = FloatSlider(min=-10.0, max=10.0, step=0.5, value=5.0, description='Intercept')
+
+# Bind interactive function
+interact(plot_line, slope=slope_slider, intercept=intercept_slider);
 
 # %% [markdown]
 # Adjust the sliders above to see how `y_new` changes dynamically.
