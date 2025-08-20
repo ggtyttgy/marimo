@@ -3,53 +3,38 @@
 # %% [markdown]
 # # Interactive Data Analysis Notebook
 # 
-# This notebook demonstrates variable dependencies, interactive widgets, and dynamic markdown updates.
-# All code cells are documented with comments for data flow.
+# Demonstrates variable dependencies, interactive sliders, and dynamic Markdown updates.
 
 # %% [code]
 import numpy as np
-from ipywidgets import FloatSlider, interact
-from IPython.display import display, Markdown
+import marimo as mo  # Marimo environment
 
-# Dataset setup
+# Dataset
 x = np.linspace(0, 10, 200)  # independent variable
 y = 2 * x + 5 + np.random.normal(0, 2, size=x.shape)  # dependent variable
-# y depends on x and some random noise
-
-# %% [markdown]
-# ## Cell 1: Linear relationship
-# y depends on x and some random noise.
-# This cell sets up the base data.
 
 # %% [code]
-def update_linear(slope=2.0, intercept=5.0):
-    """
-    Update linear dependent variable y_new and display dynamic markdown
-    """
-    y_new = slope * x + intercept  # dependent variable
-    md = f"**Slope:** {slope:.1f}, **Intercept:** {intercept:.1f}\n\n"
-    md += f"Sample prediction y_new[0]: {y_new[0]:.2f}"
-    display(Markdown(md))
+# Cell 1: Linear relationship slider
+slope_slider = mo.ui.slider(0, 5, value=2, description="Slope")
+intercept_slider = mo.ui.slider(-10, 10, value=5, description="Intercept")
 
-# Interactive sliders for linear relationship
-interact(update_linear,
-         slope=FloatSlider(min=0, max=5, step=0.1, value=2.0, description='Slope'),
-         intercept=FloatSlider(min=-10, max=10, step=0.5, value=5.0, description='Intercept'));
+def update_linear():
+    y_new = slope_slider.value * x + intercept_slider.value
+    mo.md(f"**Slope:** {slope_slider.value}, **Intercept:** {intercept_slider.value}\n\n"
+          f"Sample y_new[0]: {y_new[0]:.2f} {'🟢'*int(slope_slider.value)}")
 
-# %% [markdown]
-# ## Cell 2: Quadratic dependency
-# Demonstrates another dependent variable that relies on the first slider’s slope.
+slope_slider.on_change(update_linear)
+intercept_slider.on_change(update_linear)
+
+update_linear()  # initial display
 
 # %% [code]
-def update_quadratic(slope=2.0):
-    """
-    Quadratic dependent variable: z = slope * x^2
-    """
-    z = slope * x**2
-    md = f"**Quadratic dependency z = slope * x^2**\n"
-    md += f"Sample z[0]: {z[0]:.2f}"
-    display(Markdown(md))
+# Cell 2: Quadratic dependency slider
+quad_slider = mo.ui.slider(0, 2, value=1, step=0.05, description="Quad Slope")
 
-# Interactive slider for quadratic dependency
-interact(update_quadratic,
-         slope=FloatSlider(min=0, max=2, step=0.05, value=1.0, description='Slope'));
+def update_quadratic():
+    z = quad_slider.value * x**2
+    mo.md(f"**Quadratic z = slope * x^2**\nSample z[0]: {z[0]:.2f} {'🔵'*int(quad_slider.value*5)}")
+
+quad_slider.on_change(update_quadratic)
+update_quadratic()  # initial display
