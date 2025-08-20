@@ -1,52 +1,42 @@
-# 23f2003790@ds.study.iitm.ac.in
+# Email: 23f2003790@ds.study.iitm.ac.in
 
-# %% [markdown]
-# # Interactive Data Analysis Notebook
-# 
-# This notebook demonstrates relationships between variables using interactive widgets.
-# Comments document the data flow between cells.
-
-# %% [code]
+import marimo
 import numpy as np
 import matplotlib.pyplot as plt
-from ipywidgets import interact, FloatSlider
 
-# Sample dataset
-x = np.linspace(0, 10, 200)  # independent variable
-y = 2 * x + 5 + np.random.normal(0, 2, size=x.shape)  # dependent variable
+# Cell 1: Load data and define variables
+# This cell creates synthetic data and exposes X and Y for downstream cells.
+X = np.linspace(0, 10, 100)
+Y = 2 * X + np.random.normal(0, 2, size=X.shape)
 
-# %% [markdown]
-# ## Variable Dependencies
-# `y` depends on `x` and some random noise.
+# Cell 2: Interactive slider for slope
+# The value of 'slope' is used by subsequent cells to update the regression line.
+slope = marimo.slider(label="Adjust Slope", min=0.0, max=5.0, step=0.1, value=2.0)
 
-# %% [code]
-# Interactive function
-def plot_line(slope, intercept):
-    """
-    Plot y = slope * x + intercept
-    Dynamically updates based on slider widget state.
-    """
-    y_new = slope * x + intercept  # dependent variable recalculation
-    plt.figure(figsize=(8,4))
-    plt.scatter(x, y, label='Original y')
-    plt.plot(x, y_new, color='red', label=f'Predicted y = {slope}x + {intercept}')
-    plt.xlabel('x')
-    plt.ylabel('y')
-    plt.title('Interactive Linear Relationship')
-    plt.legend()
-    plt.show()
+# Cell 3: Compute predicted values based on the slider
+# This cell depends on 'X' from Cell 1 and 'slope' from Cell 2.
+Y_pred = slope.value * X
 
-# Explicit slider widgets
-slope_slider = FloatSlider(min=0.0, max=5.0, step=0.1, value=2.0, description='Slope')
-intercept_slider = FloatSlider(min=-10.0, max=10.0, step=0.5, value=5.0, description='Intercept')
+# Cell 4: Plot and show dynamic markdown output
+# This cell visualizes the relationship and outputs markdown based on widget state.
+fig, ax = plt.subplots()
+ax.scatter(X, Y, label="Data")
+ax.plot(X, Y_pred, color="red", label=f"Regression Line (slope={slope.value})")
+ax.legend()
+plt.close(fig)
 
-# Bind interactive function
-interact(plot_line, slope=slope_slider, intercept=intercept_slider);
+marimo.display(fig)
 
-# %% [markdown]
-# Adjust the sliders above to see how `y_new` changes dynamically.
-# 
-# **Data flow notes:**  
-# - `x` is fixed across all recalculations.  
-# - `y_new` depends on `slope` and `intercept` sliders.  
-# - Markdown updates describe the impact of slider changes.
+marimo.markdown(f"""
+**Current Regression Slope:** `{slope.value}`
+
+The red line shows the predicted relationship between X and Y based on the slope chosen above.
+
+*Move the slider to see how the regression line changes!*
+""")
+
+# Comments:
+# - Cell 1 initializes data used by all other cells.
+# - Cell 2 creates a slider widget that controls the slope of the regression line.
+# - Cell 3 uses the slider's state to update predictions.
+# - Cell 4 displays a plot and dynamic markdown, both of which depend on the current slider value.
