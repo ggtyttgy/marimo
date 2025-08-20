@@ -1,40 +1,55 @@
-# Author: 23f2003790@ds.study.iitm.ac.in
+# 23f2003790@ds.study.iitm.ac.in
 
-import marimo
+# %% [markdown]
+# # Interactive Data Analysis Notebook
+# 
+# This notebook demonstrates variable dependencies, interactive widgets, and dynamic markdown updates.
+# All code cells are documented with comments for data flow.
+
+# %% [code]
 import numpy as np
-import matplotlib.pyplot as plt
+from ipywidgets import FloatSlider, interact
+from IPython.display import display, Markdown
 
-# --- Cell 1: Generate synthetic data ---
-# This cell defines the dataset (X, Y) for analysis.
-X = np.linspace(0, 10, 100)
-Y = 3 * X + np.random.normal(0, 2, size=X.shape)
+# Dataset setup
+x = np.linspace(0, 10, 200)  # independent variable
+y = 2 * x + 5 + np.random.normal(0, 2, size=x.shape)  # dependent variable
+# y depends on x and some random noise
 
-# --- Cell 2: Slider widget for slope ---
-# The value of 'slope' from this cell will modify subsequent analysis.
-slope = marimo.slider(label="Regression Slope", min=0.0, max=6.0, step=0.1, value=3.0)
+# %% [markdown]
+# ## Cell 1: Linear relationship
+# y depends on x and some random noise.
+# This cell sets up the base data.
 
-# --- Cell 3: Compute predictions based on slider ---
-# This cell depends on 'X' (from Cell 1) and 'slope' (from Cell 2).
-Y_pred = slope.value * X
+# %% [code]
+def update_linear(slope=2.0, intercept=5.0):
+    """
+    Update linear dependent variable y_new and display dynamic markdown
+    """
+    y_new = slope * x + intercept  # dependent variable
+    md = f"**Slope:** {slope:.1f}, **Intercept:** {intercept:.1f}\n\n"
+    md += f"Sample prediction y_new[0]: {y_new[0]:.2f}"
+    display(Markdown(md))
 
-# --- Cell 4: Visualize and document ---
-# This cell displays the results and updates the markdown dynamically.
-fig, ax = plt.subplots()
-ax.scatter(X, Y, label="Observed Data")
-ax.plot(X, Y_pred, color="red", label=f"Model (slope={slope.value})")
-ax.legend()
-plt.close(fig)
+# Interactive sliders for linear relationship
+interact(update_linear,
+         slope=FloatSlider(min=0, max=5, step=0.1, value=2.0, description='Slope'),
+         intercept=FloatSlider(min=-10, max=10, step=0.5, value=5.0, description='Intercept'));
 
-marimo.display(fig)
+# %% [markdown]
+# ## Cell 2: Quadratic dependency
+# Demonstrates another dependent variable that relies on the first slider’s slope.
 
-marimo.markdown(f"""
-### Interactive Linear Relationship Demo
+# %% [code]
+def update_quadratic(slope=2.0):
+    """
+    Quadratic dependent variable: z = slope * x^2
+    """
+    z = slope * x**2
+    md = f"**Quadratic dependency z = slope * x^2**\n"
+    md += f"Sample z[0]: {z[0]:.2f}"
+    display(Markdown(md))
 
-- **Current regression slope:** `{slope.value}`
-- The red line shows the predicted relationship between X and Y based on the slope above.
-
-*Move the slider to explore how the model fits the data!*
-
----
-*Data and widgets are linked: Changing the slider updates the line and markdown above automatically.*
-""")
+# Interactive slider for quadratic dependency
+interact(update_quadratic,
+         slope=FloatSlider(min=0, max=2, step=0.05, value=1.0, description='Slope'));
